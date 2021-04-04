@@ -1,6 +1,6 @@
 const fr = 300
 const px_m = 5
-let g = 9.81
+let g = 5
 const bounce = .75
 
 g_acc = 0
@@ -8,22 +8,22 @@ g_acc = 0
 let obj = [
   {
     id: 0,
-    size: 25,
-    x: 200,
-    y: 310,
-    dx: -0.000001,
-    dy: 0,
-    color: "#00FFFF"
+    size: 30,
+    x: 300,
+    y: 250,
+    dx: 0,
+    dy: 0.5,
+    color: "#00A0FF"
   },
   {
     id: 1,
-    size: 25,
-    x: 300,
+    size: 30,
+    x: 279,
     y: 300,
-    dx: -0.5,
-    dy: 0,
-    color: "#00A0FF"
-  }
+    dx: 0,
+    dy: 0.3,
+    color: "#00FFFF"
+  },
 ]
 
 const obst = [
@@ -72,50 +72,32 @@ function hit_obj(ob){
   for(let i = ob.id; i < obj.length; i++){
     let ext_ob = obj[i]
     
-    // check for contact
     if(ob == ext_ob) continue
     
     let distance = Math.sqrt((ext_ob.x - ob.x)**2 + (ext_ob.y - ob.y)**2)
-    
-    let [dx, dy] = normalize_delta((ext_ob.x - ob.x), (ext_ob.y - ob.y))
-    
-    // line(ob.x, ob.y, ob.x+dx*50, ob.y+dy*50)
-    
     if (distance > ob.size) continue
     let overlap = ob.size - distance
     
-    let kin = Math.abs(ob.dx) + Math.abs(ext_ob.dx) + Math.abs(ob.dy) + Math.abs(ext_ob.dy)
+    let [dx, dy] = normalize_delta((ob.x - ext_ob.x), (ob.y - ext_ob.y))
     
-    ext_dx = ext_ob.dx
-    ext_dy = ext_ob.dy
+    let vx = Math.abs(ob.dx - ext_ob.dx)
+    let vy = Math.abs(ob.dy - ext_ob.dy)
     
-    ext_ob.dx += (ob.dx + dx) * bounce
-    ext_ob.dy += (ob.dy + dy) * bounce
+    m = Math.abs(dx * vx + dy * vy) * bounce
     
-    ob.dx -= (ob.dx + dx) * bounce
-    ob.dy -= (ob.dy + dy) * bounce
+    mx = m * dx
+    my = m * dy
+        
+    ob.dx += mx
+    ob.dy += my
     
-    ob.dx += (ext_dx + -dx) * bounce
-    ob.dy += (ext_dy + -dy) * bounce
+    ext_ob.dx -= mx
+    ext_ob.dy -= my
     
-    ext_ob.dx -= (ext_dx + -dx) * bounce
-    ext_ob.dy -= (ext_dy + -dy) * bounce
-    
-    let new_kin = Math.abs(ob.dx) + Math.abs(ext_ob.dx) + Math.abs(ob.dy) + Math.abs(ext_ob.dy)
-    
-    ob.dx *= kin/new_kin
-    ob.dy *= kin/new_kin
-    
-    ext_ob.dx *= kin/new_kin
-    ext_ob.dy *= kin/new_kin
-    
-    ob.x += -dx*overlap/2
-    ob.y += -dy*overlap/2
-    
-    ext_ob.x += dx*overlap/2
-    ext_ob.y += dy*overlap/2
-
-
+    ob.x += dx*overlap/2
+    ob.y += dy*overlap/2
+    ext_ob.x -= dx*overlap/2
+    ext_ob.y -= dy*overlap/2
   }
 }
 
@@ -201,7 +183,7 @@ function mouseClicked() {
   obj.push(
     {
       id: obj.length,
-      size: 25,
+      size: 30,
       x: mouseX,
       y: mouseY,
       dx: 0.0001,
