@@ -1,4 +1,4 @@
-const fr = 120
+const fr = 1000
 const px_m = 5
 let g = 3
 const bounce = .8
@@ -6,24 +6,24 @@ const bounce = .8
 g_acc = 0
 
 let obj = [
-  {
-    id: 0,
-    size: 25,
-    x: 300,
-    y: 250,
-    dx: 0,
-    dy: 0.5,
-    color: "#00A0FF"
-  },
-  {
-    id: 1,
-    size: 25,
-    x: 279,
-    y: 300,
-    dx: 0,
-    dy: 0.3,
-    color: "#00FFFF"
-  },
+  // {
+  //   id: 0,
+  //   size: 25,
+  //   x: 300,
+  //   y: 250,
+  //   dx: 0,
+  //   dy: 0.5,
+  //   color: "#00A0FF"
+  // },
+  // {
+  //   id: 1,
+  //   size: 25,
+  //   x: 279,
+  //   y: 300,
+  //   dx: 0,
+  //   dy: 0.3,
+  //   color: "#00FFFF"
+  // },
 ]
 
 const obst = [
@@ -60,27 +60,22 @@ function hit_obst(ob){
     if(Math.abs(distance) > ob.size/2) continue
     let overlap = ob.size/2 - Math.abs(distance)
     
+    energy_before = Math.abs(ob.dx) + Math.abs(ob.dy)
+    
     // get normal vector
     let [nx, ny] = normalize_vector(-(o.y0 - o.y1), o.x0 - o.x1)
-    
-    // if on other side of wall, reverse normal
-    // console.log(distance)
-    
-    // get approaching speed 
-    let vx = Math.abs(ob.dx)
-    let vy = Math.abs(ob.dy)
-    
+        
     // magnitude resulting force
-    let f = Math.abs(vx * nx + vy * ny)
-    
+    let f = ob.dx * nx + ob.dy * ny
+        
     // split into parts and apply direction
-    let fx = f * nx * bounce
-    let fy = f * ny * bounce
+    let fx = -f * nx * 2 * bounce
+    let fy = -f * ny * 2 * bounce
 
     // apply forces
-    ob.dx += fx*2
-    ob.dy += fy*2
-    
+    ob.dx += fx
+    ob.dy += fy
+
     // remove overlap
     ob.x += nx*overlap
     ob.y += ny*overlap
@@ -124,9 +119,11 @@ function hit_obj(ob){
     
     if(ob == ext_ob) continue
     
+    energy_before = Math.abs(ob.dx) + Math.abs(ob.dy) + Math.abs(ext_ob.dx) + Math.abs(ext_ob.dy)
+    
     let distance = Math.sqrt((ext_ob.x - ob.x)**2 + (ext_ob.y - ob.y)**2)
     if (distance > (ob.size/2)+(ext_ob.size/2)) continue
-    let overlap = ob.size - distance
+    let overlap = (ob.size/2)+(ext_ob.size/2) - distance
     
     // normal vetor collision plane
     let [nx, ny] = normalize_vector((ob.x - ext_ob.x), (ob.y - ext_ob.y))
@@ -147,6 +144,10 @@ function hit_obj(ob){
     ob.dy += fy
     ext_ob.dx -= fx
     ext_ob.dy -= fy
+    
+    energy_after = (Math.abs(ob.dx) + Math.abs(ob.dy) + Math.abs(ext_ob.dx) + Math.abs(ext_ob.dy)) * 1.25
+    // console.log(`object: ${energy_before - energy_after}`)
+    
     
     // remove overlap
     ob.x += nx*overlap/2
@@ -184,17 +185,18 @@ function apply_f(ob){
 
 function mouseClicked() {
   for(let i = 0; i < 5; i++)
-    obj.push(
-      {
-        id: obj.length,
-        size: 25,
-        x: mouseX+25*i,
-        y: mouseY,
-        dx: 0.0001,
-        dy: 0,
-        color: "#00A0FF"
-      }
-    )
+  //   for(let j = 0; j < 5; j++)
+      obj.push(
+        {
+          id: obj.length,
+          size: 25,
+          x: mouseX + 25*i,
+          y: mouseY,
+          dx: 0.0001,
+          dy: 0,
+          color: "#00A0FF"
+        }
+      )
 }
 
 function setup() {
